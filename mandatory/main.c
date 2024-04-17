@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/04/16 20:54:42 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/04/16 22:01:52 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,18 +23,22 @@
 #define EXIT_PIPE_FAIL 1
 #define EXIT_FORK_FAIL 2
 
-void child_0()
+void cmd_after()
 {
 	char	str[100];
-	
+
 	ft_bzero(str, 100);
 	read(STDIN, str, 16);
 	ft_printf("child0 afer dup2\nmessage: %s\n", str);
 }
 
-void child_1()
+void cmd_before()
 {
-	ft_printf("child1 afer dup2");
+	char	str[100];
+
+	ft_bzero(str, 100);
+	read(STDIN, str, 10);
+	ft_printf("abcdef", str);
 }
 
 int is_child(pid_t pid)
@@ -48,12 +52,12 @@ int	main(int argc, char* argv[])
 	(void) argv;
 
 	pid_t	pid[2];
-	int		fds[2]; //fds[0] read, fds[1] write
+	int		fds[4]; //fds[0] read, fds[1] write
 
-	//char	*fileIn = argv[1];
-	//char	*fileOut = argv[2];
-	//char	*command0 = argv[3];
-	//char	*command1 = argv[4];
+	char	*fileIn = "input.txt";
+	char	*fileOut = "output.txt";
+	//char	*command0[] = { "usr/bin/cat", "-e"};
+	//char	*command1[] = {"usr/bin/wc"};
 	
 	if (pipe(fds) < 0)
 		return (EXIT_PIPE_FAIL);
@@ -62,9 +66,11 @@ int	main(int argc, char* argv[])
 		return (EXIT_FORK_FAIL);
 	if (is_child(pid[0]))
 	{
-		dup2(fds[0], STDIN);
+		dup2(fds[0], STDIN); // in do pipe
+		fds[2] = open( fileOut, O_WRONLY | O_CREAT, 0666);
+		dup2(fds[2], STDOUT); // out no arquivo fileOut
 		close(fds[1]);
-		child_0();
+		cmd_after();
 		return (0);
 	}
 	pid[1] = fork();
@@ -72,9 +78,11 @@ int	main(int argc, char* argv[])
 		return (EXIT_FORK_FAIL);
 	if(is_child(pid[1]))
 	{
-		dup2(fds[1], STDOUT);
+		dup2(fds[1], STDOUT); // out no pipe
+		fds[3] = open(fileIn, O_RDONLY);
+		dup2(fds[3], STDIN); // in do pipe
 		close(fds[0]);
-		child_1();
+		cmd_before();
 		return (0);
 	}
 	close(fds[0]);
