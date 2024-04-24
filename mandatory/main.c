@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/04/23 22:11:46 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/04/23 23:50:24 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 
 #define STDIN  0
 #define STDOUT 1
+#define STDERR 2
 #define EXIT_OK 0
 #define EXIT_PIPE_FAIL 1
 #define EXIT_FORK_FAIL 2
@@ -37,6 +38,55 @@ int is_child(pid_t pid)
 {
 	return (pid == 0);
 }
+
+typedef enum e_io_handler_type
+{
+	FD,
+	PATH
+}	t_io_handler_type;
+
+typedef struct s_io_handler
+{
+	t_io_handler_type	type;
+	union
+	{
+		char	*path;
+		int		fd;
+	};
+} 	t_io_handler;
+
+typedef struct s_command_simple
+{
+	t_io_handler	input;
+	t_io_handler	output;
+	char		   	*cmd_path;
+	char		   	**cmd_argv;
+	char			**cmd_envp;
+}	t_command_simple;
+
+typedef struct s_command *t_command;
+
+typedef struct s_command_pipe
+{
+	t_command 	before;
+	t_command	after;
+}	t_command_pipe;
+
+typedef enum e_command_type
+{
+	SIMPLE,
+	PIPE
+}	t_command_type;
+
+struct s_command
+{
+	t_command_type type;
+	union
+	{
+		t_command_simple	*simple;
+		t_command_pipe		*pipe;
+	};
+};
 
 int	main(const int argc, char* argv[], char *envp[])
 {
@@ -88,7 +138,7 @@ int	main(const int argc, char* argv[], char *envp[])
 	close(fds[1]);
 	close(STDIN);
 	close(STDOUT);
-	close(2);
+	close(STDERR);
 	waitpid(pid[0], NULL, 0);
 	waitpid(pid[1], NULL, 0);
 	return (0);
