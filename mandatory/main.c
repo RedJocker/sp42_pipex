@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/04/16 22:01:52 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/04/23 22:11:46 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,22 +23,14 @@
 #define EXIT_PIPE_FAIL 1
 #define EXIT_FORK_FAIL 2
 
-void cmd_after()
+void cmd_after(char *cmd,  char *argv[], char *envp[])
 {
-	char	str[100];
-
-	ft_bzero(str, 100);
-	read(STDIN, str, 16);
-	ft_printf("child0 afer dup2\nmessage: %s\n", str);
+	execve(cmd, argv, envp);
 }
 
-void cmd_before()
+void cmd_before(char *cmd, char *argv[], char *envp[])
 {
-	char	str[100];
-
-	ft_bzero(str, 100);
-	read(STDIN, str, 10);
-	ft_printf("abcdef", str);
+ 	execve(cmd, argv, envp);
 }
 
 int is_child(pid_t pid)
@@ -46,7 +38,7 @@ int is_child(pid_t pid)
 	return (pid == 0);
 }
 
-int	main(int argc, char* argv[])
+int	main(const int argc, char* argv[], char *envp[])
 {
 	(void) argc;
 	(void) argv;
@@ -56,37 +48,47 @@ int	main(int argc, char* argv[])
 
 	char	*fileIn = "input.txt";
 	char	*fileOut = "output.txt";
-	//char	*command0[] = { "usr/bin/cat", "-e"};
-	//char	*command1[] = {"usr/bin/wc"};
+	char	*cmd0 = "/usr/bin/ls";
+	char	*command0[] = {"ls" , "-a", 0};
+	char	*cmd1 = "/usr/bin/wc";
+	char	*command1[] = {"wc", 0};
 	
 	if (pipe(fds) < 0)
 		return (EXIT_PIPE_FAIL);
 	pid[0] = fork();
 	if (pid[0] < 0)
 		return (EXIT_FORK_FAIL);
-	if (is_child(pid[0]))
+	if(is_child(pid[0]))
 	{
-		dup2(fds[0], STDIN); // in do pipe
-		fds[2] = open( fileOut, O_WRONLY | O_CREAT, 0666);
-		dup2(fds[2], STDOUT); // out no arquivo fileOut
+		dup2(fds[1], STDOUT); // out no pipe
+		close(fds[0]);
 		close(fds[1]);
-		cmd_after();
+		fds[3] = open(fileIn, O_RDONLY);
+		dup2(fds[3], STDIN); // in do arquivo
+		close(fds[3]);
+		cmd_before(cmd0, command0, envp);
 		return (0);
 	}
 	pid[1] = fork();
 	if (pid[1] < 0)
 		return (EXIT_FORK_FAIL);
-	if(is_child(pid[1]))
+	if (is_child(pid[1]))
 	{
-		dup2(fds[1], STDOUT); // out no pipe
-		fds[3] = open(fileIn, O_RDONLY);
-		dup2(fds[3], STDIN); // in do pipe
+		dup2(fds[0], STDIN); // in do pipe
+		fds[2] = open(fileOut, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+		dup2(fds[2], STDOUT); // out no arquivo fileOut
+		close(fds[2]);
+		close(fds[1]);
 		close(fds[0]);
-		cmd_before();
+		cmd_after(cmd1, command1, envp);
 		return (0);
 	}
+	
 	close(fds[0]);
 	close(fds[1]);
+	close(STDIN);
+	close(STDOUT);
+	close(2);
 	waitpid(pid[0], NULL, 0);
 	waitpid(pid[1], NULL, 0);
 	return (0);

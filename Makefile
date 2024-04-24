@@ -6,7 +6,7 @@
 #    By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/05 20:20:04 by maurodri          #+#    #+#              #
-#    Updated: 2024/04/05 20:31:50 by maurodri         ###   ########.fr        #
+#    Updated: 2024/04/18 22:05:49 by maurodri         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -23,7 +23,7 @@ BONUS_OBJS := $(addprefix $(OBJ_DIR), $(patsubst %.c, %.o, $(BONUS_FILES)))
 DEP_FLAGS := -MP -MD
 INCLUDES := -I./ -I$(LIBMLX_DIR)/include -I$(LIBFT_DIR)/includes
 VPATH := ./ ./mandatory ./bonus
-CFLAGS := -g3 -fsanitize=address -Wall -Wextra #-Werror
+CFLAGS := -g3 -Wall -Wextra #-Werror -fsanitize=address
 CC := cc
 
 ifdef WITH_BONUS
