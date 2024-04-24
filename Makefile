@@ -6,7 +6,7 @@
 #    By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/05 20:20:04 by maurodri          #+#    #+#              #
-#    Updated: 2024/04/18 22:05:49 by maurodri         ###   ########.fr        #
+#    Updated: 2024/04/24 09:05:03 by maurodri         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -23,7 +23,7 @@ BONUS_OBJS := $(addprefix $(OBJ_DIR), $(patsubst %.c, %.o, $(BONUS_FILES)))
 DEP_FLAGS := -MP -MD
 INCLUDES := -I./ -I$(LIBMLX_DIR)/include -I$(LIBFT_DIR)/includes
 VPATH := ./ ./mandatory ./bonus
-CFLAGS := -g3 -Wall -Wextra #-Werror -fsanitize=address
+CFLAGS := -g3 -Wall -Wextra # -fsanitize=address -Werror 
 CC := cc
 
 ifdef WITH_BONUS
@@ -44,7 +44,7 @@ all: $(NAME)
 $(NAME): $(OBJS) $(LIBMLX) $(LIBFT)
 	rm -f $(CLEAR)
 	$(CC) $(CFLAGS) $^ $(INCLUDES) -o $@
-	etags $$(find $(ETAGS_BASE) -name '*.[ch]') --include '~/glibc/TAGS'
+	etags $$(find $(ETAGS_BASE) -name '*.[ch]') $$(find $(LIBFT_DIR) -name '*.[ch]') --include '~/glibc/TAGS'
 
 $(OBJS): $(OBJ_DIR)%.o : %.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DEP_FLAGS) -o $@ -c $< $(INCLUDES) 

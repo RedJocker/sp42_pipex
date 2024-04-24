@@ -6,12 +6,13 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/04/23 23:50:24 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/04/24 10:21:51 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_stdio.h"
 #include "ft_memlib.h"
+#include "ft_string.h"
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -88,6 +89,16 @@ struct s_command
 	};
 };
 
+void	free_sarr_null_term(char **arr)
+{
+	int i;
+
+	i = -1;
+	while (arr[++i])
+		free(arr[i]);
+	free(arr);
+}
+
 int	main(const int argc, char* argv[], char *envp[])
 {
 	(void) argc;
@@ -96,12 +107,14 @@ int	main(const int argc, char* argv[], char *envp[])
 	pid_t	pid[2];
 	int		fds[4]; //fds[0] read, fds[1] write
 
-	char	*fileIn = "input.txt";
-	char	*fileOut = "output.txt";
-	char	*cmd0 = "/usr/bin/ls";
-	char	*command0[] = {"ls" , "-a", 0};
-	char	*cmd1 = "/usr/bin/wc";
-	char	*command1[] = {"wc", 0};
+	char	*fileIn = argv[1];
+	char	*fileOut = argv[4];
+    //char 	**command0 = ft_split(argv[2], ' ');
+	char *command0[] = {"ls", "-a", 0};
+	char	*cmd0 = command0[0];
+	//char	**command1 = ft_split(argv[3], ' ');
+	char *command1[] = {"wc", 0};
+	char	*cmd1 = command1[0];
 	
 	if (pipe(fds) < 0)
 		return (EXIT_PIPE_FAIL);
@@ -133,7 +146,7 @@ int	main(const int argc, char* argv[], char *envp[])
 		cmd_after(cmd1, command1, envp);
 		return (0);
 	}
-	
+
 	close(fds[0]);
 	close(fds[1]);
 	close(STDIN);
@@ -141,5 +154,7 @@ int	main(const int argc, char* argv[], char *envp[])
 	close(STDERR);
 	waitpid(pid[0], NULL, 0);
 	waitpid(pid[1], NULL, 0);
+	free_sarr_null_term(command0);
+	free_sarr_null_term(command1);
 	return (0);
 }
