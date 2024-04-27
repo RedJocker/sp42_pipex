@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/04/26 20:12:53 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/04/26 21:39:12 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ t_command	command_simple_new(char *command, char **argv, char **envp)
 
 void	command_simple_destroy(t_command_simple *cmd)
 {
+	free(cmd->cmd_path);
 	free(cmd);
 }
 
@@ -156,31 +157,29 @@ void	io_handle_path_to_fd(t_io_handler *io_handle, int flags, mode_t mode)
 	io_handle->fd = fd;
 }
 
-void	command_execute(t_command cmd, t_arraylist *pids);
+int	command_execute(t_command cmd, t_arraylist *pids);
 
-static void	command_simple_to_execve(t_command cmd)
+static int	command_simple_to_execve(t_command cmd)
 {
 	dup2(cmd->output.fd, STDOUT);
 	close(cmd->output.fd);
 	dup2(cmd->input.fd, STDIN);
 	close(cmd->input.fd);
-	execve(
-		cmd->simple->cmd_path,
-		cmd->simple->cmd_argv,
-		cmd->simple->cmd_envp);
+	execve(cmd->simple->cmd_path, cmd->simple->cmd_argv, cmd->simple->cmd_envp);
+	return (0);
 }
 
-void	command_simple_execute(t_command cmd, t_arraylist *pids)
+int	command_simple_execute(t_command cmd, t_arraylist *pids)
 {
 	pid_t	*pid;
 
 	if (cmd->type != SIMPLE)
-		return ;
+		return (0);
 	pid = malloc(sizeof(pid_t));
 	*pid = fork();
 	if (pid < 0)
 		exit(EXIT_FORK_FAIL);
-	if (is_child(*pid))
+	else if (is_child(*pid))
 	{
 		free(pid);
 		io_handle_path_to_fd(&cmd->input, O_RDONLY, 0666);
@@ -189,6 +188,7 @@ void	command_simple_execute(t_command cmd, t_arraylist *pids)
 		if (cmd->close.type == FD)
 			close(cmd->close.fd);
 		command_simple_to_execve(cmd);
+		return (0);
 	}
 	else
 	{
@@ -196,15 +196,16 @@ void	command_simple_execute(t_command cmd, t_arraylist *pids)
 		if (!(*pids))
 			exit(EXIT_MALLOC_FAIL);
 	}
+	return (1);
 }
 
 //fds[0] read, fds[1] write
-void	command_pipe_execute(t_command cmd, t_arraylist *pids)
+int	command_pipe_execute(t_command cmd, t_arraylist *pids)
 {
 	int	fd_pipe[2];
 
 	if (cmd->type != PIPE)
-		return ;
+		return (0);
 	if (pipe(fd_pipe) < 0)
 		exit(EXIT_PIPE_FAIL);
 	if (cmd->input.type == FD)
@@ -216,30 +217,38 @@ void	command_pipe_execute(t_command cmd, t_arraylist *pids)
 	cmd->pipe->before->close.fd = fd_pipe[0];
 	cmd->pipe->before->output.type = FD;
 	cmd->pipe->before->output.fd = fd_pipe[1];
-	command_execute(cmd->pipe->before, pids);
+	if (command_execute(cmd->pipe->before, pids) == 0)
+		return (0);
 	cmd->pipe->after->close.type = FD;
 	cmd->pipe->after->close.fd = fd_pipe[1];
 	cmd->pipe->after->input.type = FD;
 	cmd->pipe->after->input.fd = fd_pipe[0];
-	command_execute(cmd->pipe->after, pids);
+	if (command_execute(cmd->pipe->after, pids) == 0)
+		return (0);
 	close(fd_pipe[0]);
 	close(fd_pipe[1]);
+	return (1);
 }
 
-void	command_execute(t_command cmd, t_arraylist *pids)
+int	command_execute(t_command cmd, t_arraylist *pids)
 {
 	if (cmd->type == SIMPLE)
-		command_simple_execute(cmd, pids);
+		return (command_simple_execute(cmd, pids));
 	else if (cmd->type == PIPE)
-		command_pipe_execute(cmd, pids);
+		return (command_pipe_execute(cmd, pids));
+}
+
+char	*command_path(char **cmd_argv, char **envp)
+{
+	return ft_strdup(cmd_argv[0]);
 }
 
 int	main(const int argc, char *argv[], char *envp[])
 {
 	char		**command0 = ft_split(argv[2], ' ');
-	char		*cmd0 = command0[0];
+	char		*cmd0 = command_path(command0, envp);
 	char		**command1 = ft_split(argv[3], ' ');
-	char		*cmd1 = command1[0];
+	char		*cmd1 = command_path(command1, envp);
 	t_arraylist	pids;
 
 	pids = ft_arraylist_new(free);
