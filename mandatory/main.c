@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/04/26 21:39:12 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/04/28 15:23:44 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,3 +278,29 @@ int	main(const int argc, char *argv[], char *envp[])
 	ft_arraylist_destroy(pids);
 	return (0);
 }
+
+static int	envp_is_path(char *maybe_path)
+{
+  return (ft_strncmp("PATH=", maybe_path, 5) == 0);
+}
+
+// path + 5 -> after PATH=
+static char **envp_path_arr(char *path)
+{
+  return (ft_split(path + 5, ':'));
+}
+
+char **envp_get_path_arr(char **envp)
+{
+  	int	i;
+
+	i = -1;
+	while (envp[++i])
+	{
+		if (envp_is_path(envp[i]))
+			return (envp_path_arr(envp[i]));
+	}
+	return (0);
+}
+
+access 
