@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/04/28 15:23:44 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/04/28 23:30:48 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,8 @@ struct s_command
 	};
 };
 
+char *envp_find_bin_by_name(char *name, char **envp);
+
 t_command	command_simple_new(char *command, char **argv, char **envp)
 {
 	t_command	cmd;
@@ -90,7 +92,7 @@ t_command	command_simple_new(char *command, char **argv, char **envp)
 	cmd = ft_calloc(1, sizeof(struct s_command));
 	cmd->type = SIMPLE;
 	cmd->simple = ft_calloc(1, sizeof(struct s_command_simple));
-	cmd->simple->cmd_path = command;
+	cmd->simple->cmd_path = envp_find_bin_by_name(command, envp);
 	cmd->simple->cmd_argv = argv;
 	cmd->simple->cmd_envp = envp;
 	cmd->input.type = NONE;
@@ -144,6 +146,62 @@ void	free_strarr_null_term(char **arr)
 	while (arr[++i])
 		free(arr[i]);
 	free(arr);
+}
+
+
+static int	envp_is_path(char *maybe_path)
+{
+  return (ft_strncmp("PATH=", maybe_path, 5) == 0);
+}
+
+// path + 5 -> after PATH=
+static char **envp_path_arr(char *path)
+{
+  return (ft_split(path + 5, ':'));
+}
+
+char **envp_get_path_arr(char **envp)
+{
+  	int	i;
+
+	i = -1;
+	while (envp[++i])
+	{
+		if (envp_is_path(envp[i]))
+			return (envp_path_arr(envp[i]));
+	}
+	return (0);
+}
+
+char *envp_find_bin_by_name(char *name, char **envp)
+{
+	char *bin;
+	int	bin_len;
+	char **path_arr;
+	int    i;
+	char *slash_name;
+
+	if (access(name, X_OK) == 0)
+		return ft_strdup(name);
+	bin_len = ft_strlen(name);
+	slash_name = ft_strjoin("/", name);
+	path_arr = envp_get_path_arr(envp);
+	i = -1;
+	while (path_arr[++i])
+	{
+		bin  = ft_strjoin(path_arr[i], slash_name);
+		if (access(bin, X_OK) == 0)
+		{
+			free_strarr_null_term(path_arr);
+			free(slash_name);
+			return (bin);
+		}
+		free(bin);
+		bin = 0;
+	}
+	free_strarr_null_term(path_arr);
+	free(slash_name);
+	return (bin);
 }
 
 void	io_handle_path_to_fd(t_io_handler *io_handle, int flags, mode_t mode)
@@ -246,16 +304,14 @@ char	*command_path(char **cmd_argv, char **envp)
 int	main(const int argc, char *argv[], char *envp[])
 {
 	char		**command0 = ft_split(argv[2], ' ');
-	char		*cmd0 = command_path(command0, envp);
 	char		**command1 = ft_split(argv[3], ' ');
-	char		*cmd1 = command_path(command1, envp);
 	t_arraylist	pids;
 
 	pids = ft_arraylist_new(free);
-	t_command 	tcmd0 = command_simple_new(cmd0, command0, envp);
+	t_command 	tcmd0 = command_simple_new(command0[0], command0, envp);
 	tcmd0->input.type = PATH;
 	tcmd0->input.path = argv[1];
-	t_command 	tcmd1 = command_simple_new(cmd1, command1, envp);
+	t_command 	tcmd1 = command_simple_new(command1[0], command1, envp);
 	tcmd1->output.type = PATH;
 	tcmd1->output.path = argv[4];
 
@@ -278,29 +334,3 @@ int	main(const int argc, char *argv[], char *envp[])
 	ft_arraylist_destroy(pids);
 	return (0);
 }
-
-static int	envp_is_path(char *maybe_path)
-{
-  return (ft_strncmp("PATH=", maybe_path, 5) == 0);
-}
-
-// path + 5 -> after PATH=
-static char **envp_path_arr(char *path)
-{
-  return (ft_split(path + 5, ':'));
-}
-
-char **envp_get_path_arr(char **envp)
-{
-  	int	i;
-
-	i = -1;
-	while (envp[++i])
-	{
-		if (envp_is_path(envp[i]))
-			return (envp_path_arr(envp[i]));
-	}
-	return (0);
-}
-
-access 
