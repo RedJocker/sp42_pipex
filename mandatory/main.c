@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/04/28 23:30:48 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/05 21:27:04 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,11 +175,11 @@ char **envp_get_path_arr(char **envp)
 
 char *envp_find_bin_by_name(char *name, char **envp)
 {
-	char *bin;
-	int	bin_len;
-	char **path_arr;
-	int    i;
-	char *slash_name;
+	char	*bin;
+	int		bin_len;
+	char	**path_arr;
+	int		i;
+	char	*slash_name;
 
 	if (access(name, X_OK) == 0)
 		return ft_strdup(name);
@@ -215,6 +215,12 @@ void	io_handle_path_to_fd(t_io_handler *io_handle, int flags, mode_t mode)
 	io_handle->fd = fd;
 }
 
+void	command_simple_log_error(t_command cmd)
+{
+	if (cmd->type != SIMPLE)
+		return;
+	ft_putstr_fd("Error: ++++++++++++++++++++++", 2);
+}
 int	command_execute(t_command cmd, t_arraylist *pids);
 
 static int	command_simple_to_execve(t_command cmd)
@@ -246,6 +252,7 @@ int	command_simple_execute(t_command cmd, t_arraylist *pids)
 		if (cmd->close.type == FD)
 			close(cmd->close.fd);
 		command_simple_to_execve(cmd);
+		command_simple_log_error(cmd);
 		return (0);
 	}
 	else
@@ -294,6 +301,7 @@ int	command_execute(t_command cmd, t_arraylist *pids)
 		return (command_simple_execute(cmd, pids));
 	else if (cmd->type == PIPE)
 		return (command_pipe_execute(cmd, pids));
+	return (0);
 }
 
 char	*command_path(char **cmd_argv, char **envp)
@@ -303,29 +311,32 @@ char	*command_path(char **cmd_argv, char **envp)
 
 int	main(const int argc, char *argv[], char *envp[])
 {
-	char		**command0 = ft_split(argv[2], ' ');
-	char		**command1 = ft_split(argv[3], ' ');
-	t_arraylist	pids;
-
+	t_command 	tcmd0;
+	char		**command0;
+	char		**command1;
+	t_arraylist	  pids;
+	t_command 	tcmd1;
+	t_command 	cmd_pipe;
+	int			  len;
+	
 	pids = ft_arraylist_new(free);
-	t_command 	tcmd0 = command_simple_new(command0[0], command0, envp);
+
+	command0 = ft_split(argv[2], ' ');
+	command1 = ft_split(argv[3], ' ');
+	tcmd0 = command_simple_new(command0[0], command0, envp);
 	tcmd0->input.type = PATH;
 	tcmd0->input.path = argv[1];
-	t_command 	tcmd1 = command_simple_new(command1[0], command1, envp);
+	tcmd1 = command_simple_new(command1[0], command1, envp);
 	tcmd1->output.type = PATH;
 	tcmd1->output.path = argv[4];
-
-	t_command 	cmd_pipe = command_pipe_new();
+	cmd_pipe = command_pipe_new();
 	cmd_pipe->pipe->before = tcmd0;
 	cmd_pipe->pipe->after = tcmd1;
-	
 	command_execute(cmd_pipe, &pids);
-	
 	close(STDIN);
 	close(STDOUT);
 	close(STDERR);
-
-	int 		len = ft_arraylist_len(pids);
+	len = ft_arraylist_len(pids);
 	while (len--)
 		waitpid(*((pid_t *)ft_arraylist_get(pids, len)), 0, 0);
 	free_strarr_null_term(command0);
@@ -334,3 +345,9 @@ int	main(const int argc, char *argv[], char *envp[])
 	ft_arraylist_destroy(pids);
 	return (0);
 }
+
+
+// todo
+// handle execve error
+// handle input file does not exist error
+// handle last command exit status is failed
