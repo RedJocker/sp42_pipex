@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/05 21:27:04 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/05 21:43:59 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,18 @@ struct s_command
 
 char *envp_find_bin_by_name(char *name, char **envp);
 
+
+void	free_strarr_null_term(char **arr)
+{
+	int	i;
+
+	i = -1;
+	while (arr[++i])
+		free(arr[i]);
+	free(arr);
+}
+
+
 t_command	command_simple_new(char *command, char **argv, char **envp)
 {
 	t_command	cmd;
@@ -104,6 +116,7 @@ t_command	command_simple_new(char *command, char **argv, char **envp)
 void	command_simple_destroy(t_command_simple *cmd)
 {
 	free(cmd->cmd_path);
+	free_strarr_null_term(cmd->cmd_argv);
 	free(cmd);
 }
 
@@ -137,17 +150,6 @@ t_command	command_pipe_new(void)
 	cmd->close.type = NONE;
 	return (cmd);
 }
-
-void	free_strarr_null_term(char **arr)
-{
-	int	i;
-
-	i = -1;
-	while (arr[++i])
-		free(arr[i]);
-	free(arr);
-}
-
 
 static int	envp_is_path(char *maybe_path)
 {
@@ -309,17 +311,13 @@ char	*command_path(char **cmd_argv, char **envp)
 	return ft_strdup(cmd_argv[0]);
 }
 
-int	main(const int argc, char *argv[], char *envp[])
+t_command	command_build(const int argc, char *argv[], char *envp[])
 {
-	t_command 	tcmd0;
+	t_command	tcmd0;
 	char		**command0;
 	char		**command1;
-	t_arraylist	  pids;
-	t_command 	tcmd1;
-	t_command 	cmd_pipe;
-	int			  len;
-	
-	pids = ft_arraylist_new(free);
+	t_command	tcmd1;
+	t_command	cmd_pipe;
 
 	command0 = ft_split(argv[2], ' ');
 	command1 = ft_split(argv[3], ' ');
@@ -332,22 +330,39 @@ int	main(const int argc, char *argv[], char *envp[])
 	cmd_pipe = command_pipe_new();
 	cmd_pipe->pipe->before = tcmd0;
 	cmd_pipe->pipe->after = tcmd1;
-	command_execute(cmd_pipe, &pids);
+	return (cmd_pipe);
+}
+
+int child_check_exit_status(int status)
+{
+	return (((status) & 0xff00) >> 8);
+}
+
+int	main(const int argc, char *argv[], char *envp[])
+{
+	t_arraylist	pids;	
+	t_command	cmd;
+	int			len;
+	int			i;
+	int			status;
+	
+	pids = ft_arraylist_new(free);
+	cmd = command_build(argc, argv, envp);
+	command_execute(cmd, &pids);
 	close(STDIN);
 	close(STDOUT);
 	close(STDERR);
 	len = ft_arraylist_len(pids);
-	while (len--)
-		waitpid(*((pid_t *)ft_arraylist_get(pids, len)), 0, 0);
-	free_strarr_null_term(command0);
-	free_strarr_null_term(command1);
-	command_destroy(cmd_pipe);
+	i = -1;
+	while (++i < len - 1)
+		waitpid(*((pid_t *)ft_arraylist_get(pids, i)), 0, 0);
+	waitpid(*((pid_t *)ft_arraylist_get(pids, i)), &status, 0);
+	command_destroy(cmd);
 	ft_arraylist_destroy(pids);
-	return (0);
+	return (child_check_exit_status(status));
 }
 
 
 // todo
 // handle execve error
 // handle input file does not exist error
-// handle last command exit status is failed
