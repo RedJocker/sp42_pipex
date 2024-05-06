@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/06 03:14:39 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/06 20:01:23 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,8 +188,8 @@ char	*envp_find_bin_by_name(char *name, char **envp)
 	char	**path_arr;
 	int		i;
 	char	*slash_name;
-
-	if (access(name, X_OK) == 0)
+	
+	if (access(name, X_OK) == 0 || name[0] == '\0')
 		return (ft_strdup(name));
 	slash_name = ft_strjoin("/", name);
 	path_arr = envp_get_path_arr(envp);
@@ -237,26 +237,66 @@ void	io_handle_path_to_fd(t_io_handler *io_handle, int flags, mode_t mode)
 
 void	log_error(char *path, char *msg)
 {
-	ft_putstr_fd("Error: ", STDERR);
 	ft_putstr_fd(path, STDERR);
 	ft_putstr_fd(": ", STDERR);
 	ft_putendl_fd(msg, STDERR);
 }
 int		command_execute(t_command cmd, t_arraylist *pids);
 
+static int command_simple_log_error(t_command cmd, int err_num)
+{
+	int fd;
+
+	if (err_num == ENOENT)
+	{
+		log_error(cmd->simple->cmd_path, strerror(err_num));
+		return (127);
+	}
+	else if (err_num == EACCES)
+	{
+		fd = open(cmd->simple->cmd_argv[0], O_DIRECTORY, 0777);
+		
+		if (fd >= 0)
+		{
+			close(fd);
+			if (ft_strchr(cmd->simple->cmd_argv[0], '/'))
+				log_error(cmd->simple->cmd_argv[0], "Is a directory");
+			else
+			{
+				log_error(cmd->simple->cmd_argv[0], "command not found");
+				return (127);
+			}
+		}
+		else
+		{
+			close(fd);
+			if (cmd->simple->cmd_argv[0][0] == '\0')
+			{
+				log_error(cmd->simple->cmd_argv[0], "command not found");
+				return (127);
+			}
+			log_error(cmd->simple->cmd_argv[0], strerror(err_num));
+		}
+		ft_putendl_fd("+++++", 2);
+		return (126);
+	}
+	log_error(cmd->simple->cmd_path, strerror(err_num));
+	return (err_num);
+}
+
 int	command_simple_to_execve(t_command cmd)
 {
-	int	err_num;
+	int err_num;
 
 	if (cmd->input.type == ERROR)
 	{
 		log_error(cmd->input.error, strerror(cmd->input.error_status));
-		return (cmd->input.error_status);
+		return (1);
 	}
 	else if (cmd->output.type == ERROR)
 	{
 		log_error(cmd->output.error, strerror(cmd->output.error_status));
-		return (cmd->output.error_status);
+		return (1);
 	}
 	dup2(cmd->output.fd, STDOUT);
 	close(cmd->output.fd);
@@ -264,12 +304,7 @@ int	command_simple_to_execve(t_command cmd)
 	close(cmd->input.fd);
 	execve(cmd->simple->cmd_path, cmd->simple->cmd_argv, cmd->simple->cmd_envp);
 	err_num = errno;
-	log_error(cmd->simple->cmd_path, strerror(errno));
-	if (err_num == ENOENT)
-		return (127);
-	else if (err_num == EACCES)
-		return (126);
-	return (err_num);
+	return (command_simple_log_error(cmd, err_num));
 }
 
 int	command_simple_execute(t_command cmd, t_arraylist *pids)
