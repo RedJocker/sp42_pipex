@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/05 21:43:59 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/06 02:24:31 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,21 @@
 #include "ft_stdio.h"
 #include "ft_memlib.h"
 #include "ft_string.h"
+#include <asm-generic/errno-base.h>
 #include <fcntl.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
 
 #define STDIN  0
 #define STDOUT 1
 #define STDERR 2
 #define EXIT_OK 0
-#define EXIT_PIPE_FAIL 1
-#define EXIT_FORK_FAIL 2
-#define EXIT_MALLOC_FAIL 3
+#define EXIT_PIPE_FAIL 10
+#define EXIT_FORK_FAIL 20
+#define EXIT_MALLOC_FAIL 30
 
 int	is_child(pid_t pid)
 {
@@ -36,7 +39,8 @@ typedef enum e_io_handler_type
 {
 	NONE,
 	FD,
-	PATH
+	PATH,
+	ERROR
 }	t_io_handler_type;
 
 typedef struct s_io_handler
@@ -46,6 +50,11 @@ typedef struct s_io_handler
 	{
 		char	*path;
 		int		fd;
+		struct
+		{
+			int		error_status;
+			char	*error;
+		};
 	};
 }	t_io_handler;
 
@@ -83,8 +92,7 @@ struct s_command
 	};
 };
 
-char *envp_find_bin_by_name(char *name, char **envp);
-
+char	*envp_find_bin_by_name(char *name, char **envp);
 
 void	free_strarr_null_term(char **arr)
 {
@@ -95,7 +103,6 @@ void	free_strarr_null_term(char **arr)
 		free(arr[i]);
 	free(arr);
 }
-
 
 t_command	command_simple_new(char *command, char **argv, char **envp)
 {
@@ -153,18 +160,18 @@ t_command	command_pipe_new(void)
 
 static int	envp_is_path(char *maybe_path)
 {
-  return (ft_strncmp("PATH=", maybe_path, 5) == 0);
+	return (ft_strncmp("PATH=", maybe_path, 5) == 0);
 }
 
 // path + 5 -> after PATH=
-static char **envp_path_arr(char *path)
+static char	**envp_path_arr(char *path)
 {
-  return (ft_split(path + 5, ':'));
+	return (ft_split(path + 5, ':'));
 }
 
-char **envp_get_path_arr(char **envp)
+char	**envp_get_path_arr(char **envp)
 {
-  	int	i;
+	int	i;
 
 	i = -1;
 	while (envp[++i])
@@ -175,64 +182,94 @@ char **envp_get_path_arr(char **envp)
 	return (0);
 }
 
-char *envp_find_bin_by_name(char *name, char **envp)
+char	*envp_find_bin_by_name(char *name, char **envp)
 {
 	char	*bin;
-	int		bin_len;
 	char	**path_arr;
 	int		i;
 	char	*slash_name;
 
 	if (access(name, X_OK) == 0)
-		return ft_strdup(name);
-	bin_len = ft_strlen(name);
+		return (ft_strdup(name));
 	slash_name = ft_strjoin("/", name);
 	path_arr = envp_get_path_arr(envp);
 	i = -1;
 	while (path_arr[++i])
 	{
-		bin  = ft_strjoin(path_arr[i], slash_name);
+		bin = ft_strjoin(path_arr[i], slash_name);
 		if (access(bin, X_OK) == 0)
-		{
-			free_strarr_null_term(path_arr);
-			free(slash_name);
-			return (bin);
-		}
+			break ;
 		free(bin);
-		bin = 0;
+		bin = NULL;
 	}
 	free_strarr_null_term(path_arr);
 	free(slash_name);
-	return (bin);
+	if (!bin)
+		return (ft_strdup(name));
+	else
+		return (bin);
 }
 
-void	io_handle_path_to_fd(t_io_handler *io_handle, int flags, mode_t mode)
+void	io_handle_set_fd(t_io_handler *io_handle, int fd)
 {
-	int	fd;
-
-	if (io_handle->type != PATH)
-		return ;
-	fd = open(io_handle->path, flags, mode);
 	io_handle->type = FD;
 	io_handle->fd = fd;
 }
 
-void	command_simple_log_error(t_command cmd)
+void	io_handle_path_to_fd(t_io_handler *io_handle, int flags, mode_t mode)
 {
-	if (cmd->type != SIMPLE)
-		return;
-	ft_putstr_fd("Error: ++++++++++++++++++++++", 2);
-}
-int	command_execute(t_command cmd, t_arraylist *pids);
+	int		fd;
+	char	*path;
 
-static int	command_simple_to_execve(t_command cmd)
+	if (io_handle->type != PATH)
+		return ;
+	path = io_handle->path;
+	fd = open(path, flags, mode);
+	if (fd < 0)
+	{
+		io_handle->type = ERROR;
+		io_handle->error_status = errno;
+		io_handle->error = path;
+		return ;
+	}
+	io_handle_set_fd(io_handle, fd);
+}
+
+void	log_error(char *path, char *msg)
 {
+	ft_putstr_fd("Error: ", STDERR);
+	ft_putstr_fd(path, STDERR);
+	ft_putstr_fd(": ", STDERR);
+	ft_putendl_fd(msg, STDERR);
+}
+int		command_execute(t_command cmd, t_arraylist *pids);
+
+int	command_simple_to_execve(t_command cmd)
+{
+	int	err_num;
+
+	if (cmd->input.type == ERROR)
+	{
+		log_error(cmd->input.error, strerror(cmd->input.error_status));
+		return (cmd->input.error_status);
+	}
+	else if (cmd->output.type == ERROR)
+	{
+		log_error(cmd->output.error, strerror(cmd->output.error_status));
+		return (cmd->output.error_status);
+	}
 	dup2(cmd->output.fd, STDOUT);
 	close(cmd->output.fd);
 	dup2(cmd->input.fd, STDIN);
 	close(cmd->input.fd);
 	execve(cmd->simple->cmd_path, cmd->simple->cmd_argv, cmd->simple->cmd_envp);
-	return (0);
+	err_num = errno;
+	log_error(cmd->simple->cmd_path, strerror(errno));
+	if (err_num == ENOENT)
+		return (127);
+	else if (err_num == EACCES)
+		return (126);
+	return (err_num);
 }
 
 int	command_simple_execute(t_command cmd, t_arraylist *pids)
@@ -243,7 +280,7 @@ int	command_simple_execute(t_command cmd, t_arraylist *pids)
 		return (0);
 	pid = malloc(sizeof(pid_t));
 	*pid = fork();
-	if (pid < 0)
+	if (*pid < 0)
 		exit(EXIT_FORK_FAIL);
 	else if (is_child(*pid))
 	{
@@ -253,9 +290,7 @@ int	command_simple_execute(t_command cmd, t_arraylist *pids)
 			&cmd->output, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 		if (cmd->close.type == FD)
 			close(cmd->close.fd);
-		command_simple_to_execve(cmd);
-		command_simple_log_error(cmd);
-		return (0);
+		return (command_simple_to_execve(cmd));
 	}
 	else
 	{
@@ -263,38 +298,34 @@ int	command_simple_execute(t_command cmd, t_arraylist *pids)
 		if (!(*pids))
 			exit(EXIT_MALLOC_FAIL);
 	}
-	return (1);
+	return (EXIT_OK);
 }
 
 //fds[0] read, fds[1] write
 int	command_pipe_execute(t_command cmd, t_arraylist *pids)
 {
 	int	fd_pipe[2];
+	int	status;
 
 	if (cmd->type != PIPE)
 		return (0);
 	if (pipe(fd_pipe) < 0)
 		exit(EXIT_PIPE_FAIL);
 	if (cmd->input.type == FD)
-	{
-		cmd->pipe->before->input.type = FD;
-		cmd->pipe->before->input.fd = cmd->input.fd;
-	}
-	cmd->pipe->before->close.type = FD;
-	cmd->pipe->before->close.fd = fd_pipe[0];
-	cmd->pipe->before->output.type = FD;
-	cmd->pipe->before->output.fd = fd_pipe[1];
-	if (command_execute(cmd->pipe->before, pids) == 0)
-		return (0);
-	cmd->pipe->after->close.type = FD;
-	cmd->pipe->after->close.fd = fd_pipe[1];
-	cmd->pipe->after->input.type = FD;
-	cmd->pipe->after->input.fd = fd_pipe[0];
-	if (command_execute(cmd->pipe->after, pids) == 0)
-		return (0);
+		io_handle_set_fd(&cmd->pipe->before->input, cmd->input.fd);
+	io_handle_set_fd(&cmd->pipe->before->close, fd_pipe[0]);
+	io_handle_set_fd(&cmd->pipe->before->output, fd_pipe[1]);
+	status = command_execute(cmd->pipe->before, pids);
+	if (status != 0)
+		return (status);
+	io_handle_set_fd(&cmd->pipe->after->close, fd_pipe[1]);
+	io_handle_set_fd(&cmd->pipe->after->input, fd_pipe[0]);
+	status = command_execute(cmd->pipe->after, pids);
+	if (status != 0)
+		return (status);
 	close(fd_pipe[0]);
 	close(fd_pipe[1]);
-	return (1);
+	return (EXIT_OK);
 }
 
 int	command_execute(t_command cmd, t_arraylist *pids)
@@ -303,12 +334,7 @@ int	command_execute(t_command cmd, t_arraylist *pids)
 		return (command_simple_execute(cmd, pids));
 	else if (cmd->type == PIPE)
 		return (command_pipe_execute(cmd, pids));
-	return (0);
-}
-
-char	*command_path(char **cmd_argv, char **envp)
-{
-	return ft_strdup(cmd_argv[0]);
+	return (EXIT_OK);
 }
 
 t_command	command_build(const int argc, char *argv[], char *envp[])
@@ -333,22 +359,22 @@ t_command	command_build(const int argc, char *argv[], char *envp[])
 	return (cmd_pipe);
 }
 
-int child_check_exit_status(int status)
+int	child_check_exit_status(int status)
 {
 	return (((status) & 0xff00) >> 8);
 }
 
 int	main(const int argc, char *argv[], char *envp[])
 {
-	t_arraylist	pids;	
+	t_arraylist	pids;
 	t_command	cmd;
 	int			len;
 	int			i;
-	int			status;
-	
+	int			status[2];
+
 	pids = ft_arraylist_new(free);
 	cmd = command_build(argc, argv, envp);
-	command_execute(cmd, &pids);
+	status[0] = command_execute(cmd, &pids);
 	close(STDIN);
 	close(STDOUT);
 	close(STDERR);
@@ -356,13 +382,10 @@ int	main(const int argc, char *argv[], char *envp[])
 	i = -1;
 	while (++i < len - 1)
 		waitpid(*((pid_t *)ft_arraylist_get(pids, i)), 0, 0);
-	waitpid(*((pid_t *)ft_arraylist_get(pids, i)), &status, 0);
+	waitpid(*((pid_t *)ft_arraylist_get(pids, i)), status + 1, 0);
 	command_destroy(cmd);
 	ft_arraylist_destroy(pids);
-	return (child_check_exit_status(status));
+	if (status[0] != EXIT_OK)
+		return (status[0]);
+	return (child_check_exit_status(status[1]));
 }
-
-
-// todo
-// handle execve error
-// handle input file does not exist error
