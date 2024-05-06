@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/06 02:24:31 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/06 03:14:39 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,8 +297,8 @@ int	command_simple_execute(t_command cmd, t_arraylist *pids)
 		*pids = ft_arraylist_add(*pids, pid);
 		if (!(*pids))
 			exit(EXIT_MALLOC_FAIL);
+		return (EXIT_OK);
 	}
-	return (EXIT_OK);
 }
 
 //fds[0] read, fds[1] write
@@ -374,18 +374,19 @@ int	main(const int argc, char *argv[], char *envp[])
 
 	pids = ft_arraylist_new(free);
 	cmd = command_build(argc, argv, envp);
-	status[0] = command_execute(cmd, &pids);
+	status[1] = command_execute(cmd, &pids);
 	close(STDIN);
 	close(STDOUT);
 	close(STDERR);
 	len = ft_arraylist_len(pids);
 	i = -1;
 	while (++i < len - 1)
-		waitpid(*((pid_t *)ft_arraylist_get(pids, i)), 0, 0);
-	waitpid(*((pid_t *)ft_arraylist_get(pids, i)), status + 1, 0);
+		waitpid(*((pid_t *) ft_arraylist_get(pids, i)), 0, 0);
+	if (len > 0)
+		waitpid(*((pid_t *)ft_arraylist_get(pids, i)), status, 0);
 	command_destroy(cmd);
 	ft_arraylist_destroy(pids);
-	if (status[0] != EXIT_OK)
-		return (status[0]);
-	return (child_check_exit_status(status[1]));
+	if (status[1] != EXIT_OK)
+		return (status[1]);
+	return (child_check_exit_status(status[0]));
 }
