@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/06 20:01:23 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/07 21:15:34 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@
 #define EXIT_PIPE_FAIL 10
 #define EXIT_FORK_FAIL 20
 #define EXIT_MALLOC_FAIL 30
+#define SPACE_CHARS " \r\n\t\v\f"
+
 
 int	is_child(pid_t pid)
 {
@@ -111,7 +113,10 @@ t_command	command_simple_new(char *command, char **argv, char **envp)
 	cmd = ft_calloc(1, sizeof(struct s_command));
 	cmd->type = SIMPLE;
 	cmd->simple = ft_calloc(1, sizeof(struct s_command_simple));
-	cmd->simple->cmd_path = envp_find_bin_by_name(command, envp);
+	if (!command)
+		cmd->simple->cmd_path = envp_find_bin_by_name(ft_strdup(""), envp);
+	else
+		cmd->simple->cmd_path = envp_find_bin_by_name(command, envp);
 	cmd->simple->cmd_argv = argv;
 	cmd->simple->cmd_envp = envp;
 	cmd->input.type = NONE;
@@ -188,10 +193,12 @@ char	*envp_find_bin_by_name(char *name, char **envp)
 	char	**path_arr;
 	int		i;
 	char	*slash_name;
-	
-	if (access(name, X_OK) == 0 || name[0] == '\0')
-		return (ft_strdup(name));
-	slash_name = ft_strjoin("/", name);
+	char	*trim_name;
+
+	trim_name = ft_strtrim(name, SPACE_CHARS);
+	if (access(trim_name, X_OK) == 0 || trim_name[0] == '\0')
+		return (trim_name);
+	slash_name = ft_strjoin("/", trim_name);
 	path_arr = envp_get_path_arr(envp);
 	i = -1;
 	while (path_arr[++i])
@@ -205,9 +212,9 @@ char	*envp_find_bin_by_name(char *name, char **envp)
 	free_strarr_null_term(path_arr);
 	free(slash_name);
 	if (!bin)
-		return (ft_strdup(name));
-	else
-		return (bin);
+		bin = ft_strdup(trim_name);
+	free(trim_name);
+	return (bin);
 }
 
 void	io_handle_set_fd(t_io_handler *io_handle, int fd)
@@ -246,20 +253,26 @@ int		command_execute(t_command cmd, t_arraylist *pids);
 static int command_simple_log_error(t_command cmd, int err_num)
 {
 	int fd;
-
+	//ft_putendl_fd("0+++++", 2);
 	if (err_num == ENOENT)
 	{
-		log_error(cmd->simple->cmd_path, strerror(err_num));
+		//ft_putendl_fd("1+++++", 2);
+		if (ft_strchr(cmd->simple->cmd_path, '/'))
+				log_error(cmd->simple->cmd_argv[0], "No such file or directory");
+		else
+			log_error(cmd->simple->cmd_argv[0], "command not found");
+		//log_error(cmd->simple->cmd_path, strerror(err_num));
 		return (127);
 	}
 	else if (err_num == EACCES)
 	{
+		//ft_putendl_fd("3+++++", 2);
 		fd = open(cmd->simple->cmd_argv[0], O_DIRECTORY, 0777);
-		
 		if (fd >= 0)
 		{
+			//ft_putendl_fd("4+++++", 2);
 			close(fd);
-			if (ft_strchr(cmd->simple->cmd_argv[0], '/'))
+			if (ft_strchr(cmd->simple->cmd_path, '/'))
 				log_error(cmd->simple->cmd_argv[0], "Is a directory");
 			else
 			{
@@ -269,6 +282,7 @@ static int command_simple_log_error(t_command cmd, int err_num)
 		}
 		else
 		{
+			//ft_putendl_fd("7+++++", 2);
 			close(fd);
 			if (cmd->simple->cmd_argv[0][0] == '\0')
 			{
@@ -277,7 +291,7 @@ static int command_simple_log_error(t_command cmd, int err_num)
 			}
 			log_error(cmd->simple->cmd_argv[0], strerror(err_num));
 		}
-		ft_putendl_fd("+++++", 2);
+		//ft_putendl_fd("10+++++", 2);
 		return (126);
 	}
 	log_error(cmd->simple->cmd_path, strerror(err_num));
@@ -291,11 +305,15 @@ int	command_simple_to_execve(t_command cmd)
 	if (cmd->input.type == ERROR)
 	{
 		log_error(cmd->input.error, strerror(cmd->input.error_status));
+		if (cmd->output.type == FD)
+			close(cmd->output.fd);
 		return (1);
 	}
 	else if (cmd->output.type == ERROR)
 	{
 		log_error(cmd->output.error, strerror(cmd->output.error_status));
+		if (cmd->input.type == FD)
+			close(cmd->input.fd);
 		return (1);
 	}
 	dup2(cmd->output.fd, STDOUT);
@@ -407,6 +425,11 @@ int	main(const int argc, char *argv[], char *envp[])
 	int			i;
 	int			status[2];
 
+	if (argc != 5)
+	{
+		log_error("main", "invalid argc");
+		return (1);
+	}
 	pids = ft_arraylist_new(free);
 	cmd = command_build(argc, argv, envp);
 	status[1] = command_execute(cmd, &pids);
