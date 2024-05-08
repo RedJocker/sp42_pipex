@@ -1,0 +1,6 @@
+{
+	igonere_binaries
+	Memcheck:Leak
+	...
+	obj:/usr/bin/*
+}
