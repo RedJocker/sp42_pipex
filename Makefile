@@ -6,14 +6,21 @@
 #    By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/05 20:20:04 by maurodri          #+#    #+#              #
-#    Updated: 2024/04/24 09:05:03 by maurodri         ###   ########.fr        #
+#    Updated: 2024/05/09 19:16:04 by maurodri         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
 NAME := pipex
 LIBFT_DIR := ./lib/libftx
 LIBFT := $(LIBFT_DIR)/libft.a
-FILES := main.c
+FILES := main.c \
+		envp.c \
+		util.c \
+		command.c \
+		command_pipe.c \
+		command_simple.c \
+		command_simple_execute.c \
+		io_handler.c
 
 BONUS_FILES := main_bonus.c 
 
