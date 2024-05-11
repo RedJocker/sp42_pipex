@@ -6,7 +6,7 @@
 #    By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/05 20:20:04 by maurodri          #+#    #+#              #
-#    Updated: 2024/05/09 19:16:04 by maurodri         ###   ########.fr        #
+#    Updated: 2024/05/11 04:30:30 by maurodri         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -22,7 +22,14 @@ FILES := main.c \
 		command_simple_execute.c \
 		io_handler.c
 
-BONUS_FILES := main_bonus.c 
+BONUS_FILES := main_bonus.c \
+			envp_bonus.c \
+			util_bonus.c \
+			command_bonus.c \
+			command_pipe_bonus.c \
+			command_simple_bonus.c \
+			command_simple_execute_bonus.c \
+			io_handler_bonus.c
 
 OBJ_DIR := ./obj/
 MANDATORY_OBJS := $(addprefix $(OBJ_DIR), $(patsubst %.c, %.o, $(FILES)))
@@ -69,7 +76,6 @@ bonus:
 
 clean:
 	rm -fr $(OBJ_DIR) **/*~ *~ **/.#*
-	$(MAKE) -C $(LIBMLX_DIR)/build clean
 	$(MAKE) -C $(LIBFT_DIR) fclean
 
 fclean: clean

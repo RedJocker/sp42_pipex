@@ -1,0 +1,17 @@
+| i     pipe1                       o  |
+
+| i     pipe0          o | i cmd2   o  |
+                       \__/
+| i cmd0 o | i cmd1    o |
+          \__/
+
+--------------------------------------------------------
+
+| i     pipe0                                o  |
+
+| i     cmd0          o | i pipe1            o  |
+                       \__/
+                       |  i cmd1 o | i cmd2   o |
+                                  \__/
+
+(abc | def ) | (ghi | jkl)

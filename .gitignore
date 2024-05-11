@@ -19,3 +19,9 @@ pipex
 
 **/.clang-format
 **/compile_flags.txt
+
+PIPEXaminator/
+outfile
+output.txt
+infile
+valgrind-out.txt
