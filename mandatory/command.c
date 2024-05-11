@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/09 18:37:22 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/09 21:33:11 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/11 00:01:08 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ t_command	command_build(const int argc, char *argv[], char *envp[])
 	t_command	cmd_pipe;
 
 	(void) argc;
-	command0 = ft_split(argv[2], ' ');
-	command1 = ft_split(argv[3], ' ');
+	command0 = ft_split_quote(argv[2], ' ');
+	command1 = ft_split_quote(argv[3], ' ');
 	tcmd0 = command_simple_new(command0[0], command0, envp);
 	tcmd0->input.type = PATH;
 	tcmd0->input.path = argv[1];
