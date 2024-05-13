@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:18:17 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/13 05:16:39 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/13 13:31:08 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,41 +83,51 @@ void command_set_output(t_command cmd, t_io_handler *io)
 
 t_command	command_build(const int argc, char *argv[], char *envp[])
 {
-	t_command		tcmd0;
 	char			**command0;
 	char			**command1;
-	char			**command2;
+	char            **command2;
+	char			**command3;
+	t_command		tcmd0;
 	t_command		tcmd1;
-	t_command		tcmd2;
+	t_command       tcmd2;
+	t_command		tcmd3;
 	t_command       cmd_pipe0;
-	t_command		cmd_pipe1;
+	t_command       cmd_pipe1;
+	t_command		cmd_pipe2;
 	t_io_handler	io;
 
 	(void) argc;
 	command0 = ft_split_quote(argv[2], ' ');
 	command1 = ft_split_quote(argv[3], ' ');
 	command2 = ft_split_quote(argv[4], ' ');
+	command3 = ft_split_quote(argv[5], ' ');
 	cmd_pipe0 = command_pipe_new();
 	cmd_pipe0->debug_id = ft_strdup("pipe0");
 	cmd_pipe1 = command_pipe_new();
 	cmd_pipe1->debug_id = ft_strdup("pipe1");
+	cmd_pipe2 = command_pipe_new();
+	cmd_pipe2->debug_id = ft_strdup("pipe2");
 	tcmd0 = command_simple_new(command0[0], command0, envp);
 	tcmd0->debug_id = ft_strdup("tcmd0");
 	tcmd1 = command_simple_new(command1[0], command1, envp);
 	tcmd1->debug_id = ft_strdup("tcmd1");
 	tcmd2 = command_simple_new(command2[0], command2, envp);
 	tcmd2->debug_id = ft_strdup("tcmd2");
+	tcmd3 = command_simple_new(command3[0], command3, envp);
+	tcmd3->debug_id = ft_strdup("tcmd3");
 	cmd_pipe0->pipe->before = tcmd0;
 	cmd_pipe0->pipe->after = cmd_pipe1;
 	cmd_pipe1->pipe->before = tcmd1;
-	cmd_pipe1->pipe->after = tcmd2;
+	cmd_pipe1->pipe->after = cmd_pipe2;
+	cmd_pipe2->pipe->before = tcmd2;
+	cmd_pipe2->pipe->after = tcmd3;
 	io.type = PATH;
 	io.path = argv[1];
 	io.flags = O_RDONLY;
 	io.mode = 0666;
 	command_set_input(cmd_pipe0, &io);
 	io.type = PATH;
-	io.path = argv[5];
+	io.path = argv[6];
 	io.flags = O_CREAT | O_WRONLY | O_TRUNC;
 	io.mode = 0666;
 	command_set_output(cmd_pipe0, &io);

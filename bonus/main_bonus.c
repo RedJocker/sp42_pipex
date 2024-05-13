@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:09 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/13 03:17:41 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/13 13:23:56 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	main(const int argc, char *argv[], char *envp[])
 	int			len_i[2];
 	int			status[2];
 
-	if (argc != 6)
+	if (argc != 7)
 	{
 		log_error("pipex", "invalid argc");
 		return (1);
