@@ -6,8 +6,10 @@ set follow-fork-mode parent
 b main
 b command_pipe_execute
 b command_simple_execute
+b command_simple_log_error
+b main_bonus.c:34
 
-run input.txt "./a.out" "./a.out" "./a.out" output.txt && cat output.txt
+run input.txt "cat" "cmd" output.txt
 
 define pcmd
   if $arg0->type == SIMPLE

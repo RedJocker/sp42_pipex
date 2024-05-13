@@ -6,10 +6,11 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:05 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/13 05:41:41 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/13 17:15:04 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "pipex_bonus.h"
 #include "command_bonus.h"
 #include "util_bonus.h"
 #include "io_handler_bonus.h"
@@ -60,6 +61,12 @@ static int	command_simple_log_error_enoent(t_command cmd)
 
 static int	command_simple_log_error(t_command cmd, int err_num)
 {
+	int	drain_in;
+	char ch;
+
+	drain_in = 1;
+	while (drain_in > 0)
+		drain_in = read(STDIN, &ch, 1);
 	if (err_num == ENOENT)
 		return (command_simple_log_error_enoent(cmd));
 	else if (err_num == EACCES)
