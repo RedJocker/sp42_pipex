@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:10 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/11 00:26:42 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/13 05:01:07 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ typedef enum e_command_type
 
 struct s_command
 {
+	char			*debug_id;
 	t_command_type	type;
 	t_io_handler	input;
 	t_io_handler	output;

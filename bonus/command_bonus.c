@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:18:17 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/12 21:05:22 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/13 05:16:39 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 
 void	command_destroy(t_command cmd)
 {
+	if (cmd->debug_id != NULL)
+		free(cmd->debug_id);
 	if (cmd->type == PIPE)
 		command_pipe_destroy(cmd->pipe);
 	else if (cmd->type == SIMPLE)
@@ -84,27 +86,40 @@ t_command	command_build(const int argc, char *argv[], char *envp[])
 	t_command		tcmd0;
 	char			**command0;
 	char			**command1;
+	char			**command2;
 	t_command		tcmd1;
-	t_command		cmd_pipe;
+	t_command		tcmd2;
+	t_command       cmd_pipe0;
+	t_command		cmd_pipe1;
 	t_io_handler	io;
 
 	(void) argc;
 	command0 = ft_split_quote(argv[2], ' ');
 	command1 = ft_split_quote(argv[3], ' ');
-	cmd_pipe = command_pipe_new();
+	command2 = ft_split_quote(argv[4], ' ');
+	cmd_pipe0 = command_pipe_new();
+	cmd_pipe0->debug_id = ft_strdup("pipe0");
+	cmd_pipe1 = command_pipe_new();
+	cmd_pipe1->debug_id = ft_strdup("pipe1");
 	tcmd0 = command_simple_new(command0[0], command0, envp);
+	tcmd0->debug_id = ft_strdup("tcmd0");
 	tcmd1 = command_simple_new(command1[0], command1, envp);
-	cmd_pipe->pipe->before = tcmd0;
-	cmd_pipe->pipe->after = tcmd1;
+	tcmd1->debug_id = ft_strdup("tcmd1");
+	tcmd2 = command_simple_new(command2[0], command2, envp);
+	tcmd2->debug_id = ft_strdup("tcmd2");
+	cmd_pipe0->pipe->before = tcmd0;
+	cmd_pipe0->pipe->after = cmd_pipe1;
+	cmd_pipe1->pipe->before = tcmd1;
+	cmd_pipe1->pipe->after = tcmd2;
 	io.type = PATH;
 	io.path = argv[1];
 	io.flags = O_RDONLY;
 	io.mode = 0666;
-	command_set_input(cmd_pipe, &io);
+	command_set_input(cmd_pipe0, &io);
 	io.type = PATH;
-	io.path = argv[4];
+	io.path = argv[5];
 	io.flags = O_CREAT | O_WRONLY | O_TRUNC;
 	io.mode = 0666;
-	command_set_output(cmd_pipe, &io);
-	return (cmd_pipe);
+	command_set_output(cmd_pipe0, &io);
+	return (cmd_pipe0);
 }

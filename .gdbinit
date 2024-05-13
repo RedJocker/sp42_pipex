@@ -5,12 +5,13 @@ set follow-fork-mode parent
 
 b main
 b command_pipe_execute
+b command_simple_execute
 
-run input.txt "ls" "ls" "ls" output.txt && cat output.txt
+run input.txt "./a.out" "./a.out" "./a.out" output.txt && cat output.txt
 
 define pcmd
   if $arg0->type == SIMPLE
-    printf "Simple\n"
+    printf "Simple(%s)\n", $arg0->debug_id
 	printf "input: "
 	p $arg0->input
 	printf "output: "
@@ -19,7 +20,7 @@ define pcmd
 	p $arg0->close
   else
 	if $arg0->type == PIPE
-	  printf "Pipe\n"
+	  printf "Pipe(%s)\n", $arg0->debug_id
 	  printf "input: "
 	  p $arg0->input
 	  printf "output: "
