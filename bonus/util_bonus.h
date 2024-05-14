@@ -6,12 +6,12 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:11 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/11 00:22:32 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/14 18:18:43 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTIL_H
-# define UTIL_H
+#ifndef UTIL_BONUS_H
+# define UTIL_BONUS_H
 
 # include "pipex_bonus.h"
 # include <sys/types.h>

@@ -1,13 +1,13 @@
 #!/bin/bash
 
-if [[ $1 ]];
-then
-	make fclean bonus;
-	echo -e "\n\033[0;95mBONUS\033[0m"
-else
-	make fclean all;
-	echo -e "\n\033[0;95mMANDATORY\033[0m"
-fi
+# if [[ $1 ]];
+# then
+# 	make fclean bonus;
+# 	echo -e "\n\033[0;95mBONUS\033[0m"
+# else
+# 	make fclean all;
+# 	echo -e "\n\033[0;95mMANDATORY\033[0m"
+# fi
 
 rm -rf b c d folder
 

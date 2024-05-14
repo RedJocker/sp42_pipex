@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:03 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/11 00:20:32 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/14 19:00:27 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,21 @@
 #include "envp_bonus.h"
 #include "ft_string.h"
 #include "ft_memlib.h"
+
+void	command_simple_set_output(t_command cmd, t_io_handler *io)
+{
+	ft_memcpy(&cmd->output, io, sizeof(t_io_handler));
+}
+
+void	command_simple_set_input(t_command cmd, t_io_handler *io)
+{
+	ft_memcpy(&cmd->input, io, sizeof(t_io_handler));
+}
+
+void	command_simple_set_close_pipe_in(t_command cmd, t_io_handler *io)
+{
+	ft_memcpy(&cmd->close, io, sizeof(t_io_handler));
+}
 
 void	command_simple_destroy(t_command_simple *cmd)
 {

@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:18:58 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/13 07:07:08 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/14 19:07:56 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,28 +36,6 @@ t_command	command_pipe_new(void)
 	cmd->output.type = NONE;
 	cmd->close.type = NONE;
 	return (cmd);
-}
-
-void command_set_input(t_command cmd, t_io_handler *io);
-void command_set_output(t_command cmd, t_io_handler *io);
-void command_set_close_pipe_in(t_command cmd, t_io_handler *io);
-
-void command_simple_set_close_pipe_in(t_command cmd, t_io_handler *io)
-{
-	ft_memcpy(&cmd->close, io, sizeof(t_io_handler));
-}
-
-void command_pipe_set_close_pipe_in(t_command cmd, t_io_handler *io)
-{
-	command_set_close_pipe_in(cmd->pipe->before, io);
-}
-
-void command_set_close_pipe_in(t_command cmd, t_io_handler *io)
-{
-	if (cmd->type == SIMPLE)
-		command_simple_set_close_pipe_in(cmd, io);
-	else if (cmd->type == PIPE)
-		command_pipe_set_close_pipe_in(cmd, io);
 }
 
 //fds[0] read, fds[1] write

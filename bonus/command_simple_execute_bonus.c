@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:05 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/13 17:15:04 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/14 19:10:16 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,8 @@ static int	command_simple_log_error_enoent(t_command cmd)
 
 static int	command_simple_log_error(t_command cmd, int err_num)
 {
-	int	drain_in;
-	char ch;
+	int		drain_in;
+	char	ch;
 
 	drain_in = 1;
 	while (drain_in > 0)

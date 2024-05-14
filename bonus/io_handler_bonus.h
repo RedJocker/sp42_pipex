@@ -6,12 +6,12 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:08 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/11 00:26:43 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/14 18:21:29 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef IO_BONUS_HANDLER_H
-# define IO_BONUS_HANDLER_H
+#ifndef IO_HANDLER_BONUS_H
+# define IO_HANDLER_BONUS_H
 
 # include "pipex_bonus.h"
 
