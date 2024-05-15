@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 18:12:24 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/15 17:59:16 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/15 20:09:16 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ t_command	command_build_heredoc(const int argc, char *argv[], char *envp[])
 	io.type = HEREDOC;
 	io.heredoc_limiter = argv[2];
 	command_set_input(cmd_pipe_root, &io);
-	command_build_set_io(&io, argv[i], O_CREAT | O_WRONLY);
+	command_build_set_io(&io, argv[i], O_CREAT | O_WRONLY | O_APPEND);
 	command_set_output(cmd_pipe_root, &io);
 	return (cmd_pipe_root);
 }

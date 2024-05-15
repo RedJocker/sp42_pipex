@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:05 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/14 19:10:16 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/15 19:42:13 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,8 +117,8 @@ int	command_simple_execute(t_command cmd, t_arraylist *pids)
 	else if (is_child(*pid))
 	{
 		free(pid);
-		io_handle_path_to_fd(&cmd->input);
-		io_handle_path_to_fd(&cmd->output);
+		io_handle_to_fd(&cmd->input);
+		io_handle_to_fd(&cmd->output);
 		if (cmd->close.type == FD)
 		{
 			dprintf(2, "c-close %s %d\n", cmd->debug_id, cmd->close.fd);
