@@ -9,7 +9,7 @@ b command_simple_execute
 b command_simple_log_error
 b main_bonus.c:34
 
-run input.txt "cat" "cmd" output.txt
+run here_doc "EOF" "cat" "cmd" output.txt
 
 define pcmd
   if $arg0->type == SIMPLE
@@ -34,6 +34,5 @@ define pcmd
 	  printf "After"
 	  pcmd $arg0->pipe->after
 	end
-  end
-   
+  end   
 end

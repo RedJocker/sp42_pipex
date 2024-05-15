@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:10 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/14 21:10:24 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/15 18:21:34 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ typedef struct s_io_handler
 			int		flags;
 			int		mode;
 		};
+		char	*heredoc_limiter;
 		struct
 		{
 			int		error_status;

@@ -6,7 +6,7 @@
 #    By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/05 20:20:04 by maurodri          #+#    #+#              #
-#    Updated: 2024/05/14 19:06:47 by maurodri         ###   ########.fr        #
+#    Updated: 2024/05/15 17:54:39 by maurodri         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -27,6 +27,7 @@ BONUS_FILES := main_bonus.c \
 			util_bonus.c \
 			command_bonus.c \
 			command_build_bonus.c \
+			command_build_util_bonus.c \
 			command_pipe_bonus.c \
 			command_pipe_set_io_bonus.c \
 			command_simple_bonus.c \
