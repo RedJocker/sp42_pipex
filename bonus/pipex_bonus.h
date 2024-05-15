@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:10 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/13 05:01:07 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/14 21:10:24 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ typedef enum e_io_handler_type
 	NONE,
 	FD,
 	PATH,
+	HEREDOC,
 	ERROR
 }	t_io_handler_type;
 
