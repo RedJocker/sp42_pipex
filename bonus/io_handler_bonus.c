@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:08 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/15 22:08:14 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/16 02:34:43 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void	io_handle_heredoc_to_fd(t_io_handler *io_handle)
 	if (io_handle->type != HEREDOC)
 		return;
 	limiter = io_handle->heredoc_limiter;
-	fd = open("/tmp/heredoc", O_RDWR | O_CREAT | O_TRUNC, 0666);
+	fd = open("/tmp/heredoc", O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	if (fd < 0)
 	{
 		io_handle->type = ERROR;
@@ -78,6 +78,8 @@ void	io_handle_heredoc_to_fd(t_io_handler *io_handle)
 		return ;
 	}
 	io_handle_prompt_heredoc(fd, limiter);
+	close(fd);
+	fd = open("/tmp/heredoc", O_RDONLY, 0666);
 	io_handle_set_fd(io_handle, fd);
 }
 

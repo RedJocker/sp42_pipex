@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:18:58 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/14 19:07:56 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/16 12:04:05 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,7 @@ int	command_pipe_execute(t_command cmd, t_arraylist *pids)
 	if (pipe(fd_pipe) < 0)
 		exit(EXIT_PIPE_FAIL);
 	dprintf(2, "%s [read:%d write:%d]\n", cmd->debug_id, fd_pipe[0], fd_pipe[1]);
-	io.type = FD;
-	io.fd = fd_pipe[1];
+	io_handle_set_fd(&io, fd_pipe[1]);
 	command_set_output(cmd->pipe->before, &io);
 	io.fd = fd_pipe[0];
 	command_set_close_pipe_in(cmd->pipe->before, &io);
