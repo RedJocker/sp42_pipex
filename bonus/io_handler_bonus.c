@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:08 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/21 22:12:56 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 23:23:03 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,10 +51,10 @@ static void	io_handle_prompt_heredoc(int fd, const char *limiter)
 	while (1)
 	{
 		ft_putstr_fd("> ", STDOUT);
-		input = get_next_line(STDIN);
-		if (!input || ft_strncmp(limiter, input, len_lim) == 0)
+		input = ft_chomp(get_next_line(STDIN));
+		if (!input || ft_strncmp(limiter, input, len_lim + 1) == 0)
 			break ;
-		ft_putstr_fd(input, fd);
+		ft_putendl_fd(input, fd);
 		free(input);
 	}
 	if (input)

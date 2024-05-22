@@ -6,7 +6,7 @@
 #    By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/05 20:20:04 by maurodri          #+#    #+#              #
-#    Updated: 2024/05/15 17:54:39 by maurodri         ###   ########.fr        #
+#    Updated: 2024/05/21 23:28:26 by maurodri         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -40,7 +40,7 @@ BONUS_OBJS := $(addprefix $(OBJ_DIR), $(patsubst %.c, %.o, $(BONUS_FILES)))
 DEP_FLAGS := -MP -MD
 INCLUDES := -I./ -I$(LIBMLX_DIR)/include -I$(LIBFT_DIR)/includes
 VPATH := ./ ./mandatory ./bonus
-CFLAGS := -g3 -Wall -Wextra # -fsanitize=address -Werror 
+CFLAGS := -g3 -Wall -Wextra -Werror 
 CC := cc
 
 ifdef WITH_BONUS
@@ -85,5 +85,11 @@ fclean: clean
 	rm -f $(NAME)
 
 re: fclean all
+
+test: all
+	valgrind --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes --trace-children=yes --suppressions=./val_sup.supp $(PCMD) 2>&1  | sort -s -k1,1 ; cat output.txt
+
+bonus_test: bonus
+	valgrind --track-fds=yes --leak-check=full --show-leak-kinds=all --track-origins=yes --trace-children=yes --suppressions=./val_sup.supp $(PCMD) 2>&1 | sort -s -k1,1; cat output.txt
 
 -include $(DEP_FILES)
