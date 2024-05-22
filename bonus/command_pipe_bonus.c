@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:18:58 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/16 12:04:05 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 22:10:36 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include "io_handler_bonus.h"
 #include "ft_memlib.h"
 #include <unistd.h>
-#include <stdio.h>
 
 void	command_pipe_destroy(t_command_pipe *cmd)
 {
@@ -49,7 +48,6 @@ int	command_pipe_execute(t_command cmd, t_arraylist *pids)
 		return (0);
 	if (pipe(fd_pipe) < 0)
 		exit(EXIT_PIPE_FAIL);
-	dprintf(2, "%s [read:%d write:%d]\n", cmd->debug_id, fd_pipe[0], fd_pipe[1]);
 	io_handle_set_fd(&io, fd_pipe[1]);
 	command_set_output(cmd->pipe->before, &io);
 	io.fd = fd_pipe[0];
@@ -58,17 +56,12 @@ int	command_pipe_execute(t_command cmd, t_arraylist *pids)
 	if (status != 0)
 		return (status);
 	if (cmd->input.type == FD)
-	{
 		close(cmd->input.fd);
-		dprintf(2, "m3-close %s %d\n", cmd->debug_id, cmd->input.fd);
-	}
 	close(fd_pipe[1]);
-	dprintf(2, "m2-close %s %d\n", cmd->debug_id, fd_pipe[1]);
 	command_set_input(cmd->pipe->after, &io);
 	status = command_execute(cmd->pipe->after, pids);
 	if (status != 0)
 		return (status);
 	close(fd_pipe[0]);
-	dprintf(2, "m-close %s %d\n", cmd->debug_id, fd_pipe[0]);
 	return (EXIT_OK);
 }

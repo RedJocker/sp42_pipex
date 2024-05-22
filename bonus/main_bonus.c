@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:09 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/16 02:43:22 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 22:13:58 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 #include "ft_string.h"
 #include <sys/wait.h>
 
-int is_invalid_args(const int argc, char *argv[])
+int	is_invalid_args(const int argc, char *argv[])
 {
-  return (argc < 4 || (argc == 4 && ft_strncmp("here_doc", argv[2], 9) == 0));
+	return (argc < 4 || (argc == 4 && ft_strncmp("here_doc", argv[2], 9) == 0));
 }
 
 int	main(const int argc, char *argv[], char *envp[])

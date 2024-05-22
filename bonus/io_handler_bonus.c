@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:08 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/16 02:34:43 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 22:12:56 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	io_handle_path_to_fd(t_io_handler *io_handle)
 	io_handle_set_fd(io_handle, fd);
 }
 
-static void io_handle_prompt_heredoc(int fd, const char *limiter)
+static void	io_handle_prompt_heredoc(int fd, const char *limiter)
 {
 	char	*input;
 	int		len_lim;
@@ -53,7 +53,7 @@ static void io_handle_prompt_heredoc(int fd, const char *limiter)
 		ft_putstr_fd("> ", STDOUT);
 		input = get_next_line(STDIN);
 		if (!input || ft_strncmp(limiter, input, len_lim) == 0)
-			break;
+			break ;
 		ft_putstr_fd(input, fd);
 		free(input);
 	}
@@ -67,7 +67,7 @@ void	io_handle_heredoc_to_fd(t_io_handler *io_handle)
 	char	*limiter;
 
 	if (io_handle->type != HEREDOC)
-		return;
+		return ;
 	limiter = io_handle->heredoc_limiter;
 	fd = open("/tmp/heredoc", O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	if (fd < 0)

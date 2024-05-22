@@ -6,12 +6,12 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 17:45:24 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/15 17:54:14 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 22:12:05 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef COMMAND_BUILD_UTIL_BONUS
-# define COMMAND_BUILD_UTIL_BONUS
+#ifndef COMMAND_BUILD_UTIL_BONUS_H
+# define COMMAND_BUILD_UTIL_BONUS_H
 
 # include "pipex_bonus.h"
 

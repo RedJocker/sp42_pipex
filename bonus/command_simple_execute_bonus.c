@@ -6,14 +6,13 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:05 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/15 22:08:14 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 22:08:50 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "command_bonus.h"
 #include "util_bonus.h"
 #include "io_handler_bonus.h"
-#include <stdio.h>
 #include <string.h>
 #include "ft_string.h"
 #include <fcntl.h>
@@ -94,10 +93,8 @@ static int	command_simple_to_execve(t_command cmd)
 	}
 	dup2(cmd->output.fd, STDOUT);
 	close(cmd->output.fd);
-	dprintf(2, "d-close %s %d\n", cmd->debug_id, cmd->output.fd);
 	dup2(cmd->input.fd, STDIN);
 	close(cmd->input.fd);
-	dprintf(2, "d-close %s %d\n", cmd->debug_id, cmd->input.fd);
 	execve(cmd->simple->cmd_path, cmd->simple->cmd_argv, cmd->simple->cmd_envp);
 	err_num = errno;
 	return (command_simple_log_error(cmd, err_num));
@@ -119,10 +116,7 @@ int	command_simple_execute(t_command cmd, t_arraylist *pids)
 		io_handle_to_fd(&cmd->input);
 		io_handle_to_fd(&cmd->output);
 		if (cmd->close.type == FD)
-		{
-			dprintf(2, "c-close %s %d\n", cmd->debug_id, cmd->close.fd);
 			close(cmd->close.fd);
-		}
 		return (command_simple_to_execve(cmd));
 	}
 	else
