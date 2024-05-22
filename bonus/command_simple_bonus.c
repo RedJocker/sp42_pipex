@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:03 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/14 19:00:27 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/22 00:22:16 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ t_command	command_simple_new(char *command, char **argv, char **envp)
 	cmd->type = SIMPLE;
 	cmd->simple = ft_calloc(1, sizeof(struct s_command_simple));
 	if (!command)
-		cmd->simple->cmd_path = envp_find_bin_by_name(ft_strdup(""), envp);
+		cmd->simple->cmd_path = envp_find_bin_by_name("", envp);
 	else
 		cmd->simple->cmd_path = envp_find_bin_by_name(command, envp);
 	cmd->simple->cmd_argv = argv;

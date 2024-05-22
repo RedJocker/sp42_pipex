@@ -6,7 +6,7 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:18:58 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/21 22:10:36 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/22 01:21:54 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ int	command_pipe_execute(t_command cmd, t_arraylist *pids)
 	status = command_execute(cmd->pipe->before, pids);
 	if (status != 0)
 		return (status);
-	if (cmd->input.type == FD)
+	if (cmd->input.type == FD && cmd->input.fd > 0)
 		close(cmd->input.fd);
 	close(fd_pipe[1]);
 	command_set_input(cmd->pipe->after, &io);
