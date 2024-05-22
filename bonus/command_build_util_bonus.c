@@ -6,14 +6,13 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 17:45:01 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/21 22:13:28 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 23:42:21 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "command_build_util_bonus.h"
 #include "command_bonus.h"
 #include "ft_string.h"
-#include <fcntl.h>
 
 int	command_debug_id(void)
 {

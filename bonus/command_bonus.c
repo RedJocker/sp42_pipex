@@ -6,15 +6,11 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:18:17 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/14 19:08:49 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 23:41:59 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "command_bonus.h"
-#include "ft_string.h"
-#include "ft_memlib.h"
-#include <fcntl.h>
-#include <unistd.h>
 
 void	command_destroy(t_command cmd)
 {

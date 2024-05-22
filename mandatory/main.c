@@ -6,12 +6,11 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 20:34:19 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/09 21:34:48 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 23:36:00 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include "collection/ft_arraylist.h"
 #include "util.h"
 #include "command.h"
 #include <sys/wait.h>

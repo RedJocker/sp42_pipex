@@ -6,12 +6,11 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 00:19:09 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/21 22:13:58 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 23:43:50 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
-#include "collection/ft_arraylist.h"
 #include "util_bonus.h"
 #include "command_bonus.h"
 #include "ft_string.h"

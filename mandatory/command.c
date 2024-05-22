@@ -6,14 +6,13 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/09 18:37:22 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/11 00:01:08 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 23:44:59 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "command.h"
 #include "ft_string.h"
 #include <fcntl.h>
-#include <unistd.h>
 
 void	command_destroy(t_command cmd)
 {

@@ -6,12 +6,11 @@
 /*   By: maurodri <maurodri@student.42sp...>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/09 17:30:25 by maurodri          #+#    #+#             */
-/*   Updated: 2024/05/09 19:16:54 by maurodri         ###   ########.fr       */
+/*   Updated: 2024/05/21 23:34:49 by maurodri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include <unistd.h>
 #include "util.h"
 #include "ft_stdio.h"
 
