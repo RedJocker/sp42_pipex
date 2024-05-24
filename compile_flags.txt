@@ -1,5 +1,0 @@
--I
-./lib/libftx/includes
--I
-./bonus/
-
